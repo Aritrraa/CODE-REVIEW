@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Code Analysis Result</title>
+  
+  <!-- Styles & Fonts -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs/themes/prism-tomorrow.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Fira Code', monospace;
+      background-color: #1f1c2c;
+      color: #00ffd1;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    header {
+      padding: 1rem 2rem;
+      background-color: #2c2c54;
+      text-align: center;
+      color: #00ffd1;
+    }
+
+    main {
+      display: flex;
+      flex: 1;
+    }
+
+    .left-panel, .right-panel {
+      padding: 20px;
+      overflow-y: auto;
+      height: 100%;
+    }
+
+    .left-panel {
+      width: 50%;
+      background-color: #1e1e1e;
+      border-right: 2px solid #00ffd1;
+    }
+
+    .right-panel {
+      width: 50%;
+      background-color: #f4f4f4;
+      color: #111;
+    }
+
+    h1, h2, h3 {
+      margin-top: 0;
+    }
+
+    .controls {
+      margin: 1rem 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    button {
+      padding: 8px 16px;
+      border: none;
+      background-color: #00ffd1;
+      color: black;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background-color: #00b894;
+    }
+
+    pre {
+      background: #2d3436;
+      padding: 1rem;
+      border-radius: 6px;
+      overflow: auto;
+      color: #fff;
+    }
+
+    .result-item {
+      margin-bottom: 15px;
+      padding: 10px;
+      border-left: 5px solid #00ffd1;
+      background-color: #fff;
+      border-radius: 5px;
+    }
+
+    .result-item.bad {
+      border-color: #d63031;
+      background-color: #ffe8e8;
+    }
+
+    .tag {
+      padding: 2px 6px;
+      background-color: #00b894;
+      color: white;
+      border-radius: 4px;
+      margin-left: 8px;
+      font-size: 0.85em;
+    }
+
+    .bad .tag {
+      background-color: #d63031;
+    }
+
+    .confidence-tag {
+      background-color: #0984e3;
+      font-weight: bold;
+      padding: 5px 10px;
+      border-radius: 6px;
+      font-size: 0.9em;
+    }
+
+    .section {
+      margin-top: 20px;
+    }
+
+    ul {
+      padding-left: 20px;
+    }
+
+    li {
+      margin-bottom: 6px;
+    }
+
+    .chart-container {
+      max-width: 400px;
+      margin: 1.5rem 0;
+    }
+
+    #suggestions {
+      background: #ecf0f1;
+      padding: 15px;
+      border-radius: 8px;
+      font-size: 0.95em;
+    }
+
+    .loading-spinner {
+      margin-top: 10px;
+      animation: spin 1s linear infinite;
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #00ffd1;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      display: inline-block;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .dark-mode {
+      background-color: #2d2d2d;
+      color: #cfcfcf;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🧠 Code Review Results</h1>
+    <!-- <button onclick="toggleDarkMode()">🌙 Toggle Dark Mode</button> -->
+  </header>
+
+  <main>
+    <div class="left-panel">
+      <h2>📄 Uploaded Code</h2>
+      <pre><code class="language-python" id="code-block">{{ code }}</code></pre>
+    </div>
+
+    <div class="right-panel">
+      <h2>✅ Summary</h2>
+
+      <div class="result-item {% if classification == 'Needs Improvement' %}bad{% endif %}">
+        <strong>CodeBERT:</strong> {{ classification }}
+        <span class="tag confidence-tag">Confidence: {{ confidence }}%</span>
+      </div>
+
+      <div class="result-item {% if lint_prediction == 'Needs Improvement' %}bad{% endif %}">
+        <strong>Logistic Regression:</strong> {{ lint_prediction }}
+      </div>
+
+      <div class="result-item">
+        <strong>Errors:</strong> {{ errors }} |
+        <strong>Warnings:</strong> {{ warnings }} |
+        <strong>Conventions:</strong> {{ conventions }}
+      </div>
+
+      <div class="controls">
+        <button onclick="window.location.href='/start'">⬅ Go Back</button>
+        <button onclick="downloadCodeReview()">⬇ Download Review</button>
+        <button onclick="downloadCode()">⬇ Download Code</button>
+        <button onclick="toggleSection('error-section')">Toggle Errors</button>
+        <button onclick="toggleSection('warning-section')">Toggle Warnings</button>
+        <button onclick="toggleSection('convention-section')">Toggle Conventions</button>
+        <button onclick="getSuggestions()">💡 Get Suggestions</button>
+      </div>
+
+      <div class="chart-container">
+        <canvas id="resultChart"></canvas>
+      </div>
+
+      <div class="section" id="error-section" style="display: {% if error_details %}block{% else %}none{% endif %}">
+        <h3>❌ Errors</h3>
+        <ul>
+          {% for err in error_details %}
+            <li>Line {{ err.line }}: {{ err.message }} <span class="tag">E</span></li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <div class="section" id="warning-section" style="display: {% if warning_details %}block{% else %}none{% endif %}">
+        <h3>⚠️ Warnings</h3>
+        <ul>
+          {% for warn in warning_details %}
+            <li>Line {{ warn.line }}: {{ warn.message }} <span class="tag">W</span></li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <div class="section" id="convention-section" style="display: {% if convention_details %}block{% else %}none{% endif %}">
+        <h3>📎 Conventions</h3>
+        <ul>
+          {% for conv in convention_details %}
+            <li>Line {{ conv.line }}: {{ conv.message }} <span class="tag">C</span></li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <div class="section" id="suggestions">
+        <h3>💡 Suggestions</h3>
+        <pre id="suggestions-text">Click 'Get Suggestions' to load AI-generated tips...</pre>
+        <div id="spinner" class="loading-spinner" style="display:none;"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Scripts -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    function toggleDarkMode() {
+      document.body.classList.toggle("dark-mode");
+    }
+
+    function toggleSection(id) {
+      const section = document.getElementById(id);
+      section.style.display = section.style.display === "none" ? "block" : "none";
+    }
+
+    function downloadCode() {
+      const blob = new Blob([`{{ code }}`], { type: "text/plain" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = "analyzed_code.py";
+      link.click();
+    }
+
+    function downloadCodeReview() {
+      const review = `
+CodeBERT: {{ classification }} - Confidence: {{ confidence }}%
+Logistic Regression: {{ lint_prediction }}
+Errors: {{ errors }} | Warnings: {{ warnings }} | Conventions: {{ conventions }}
+      `;
+      const blob = new Blob([review], { type: "text/plain" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = "code_review.txt";
+      link.click();
+    }
+
+    function getSuggestions() {
+      document.getElementById('spinner').style.display = "inline-block";
+      fetch('/get_suggestions', {
+        method: 'POST',
+        body: JSON.stringify({ code: `{{ code }}` }),
+        headers: { 'Content-Type': 'application/json' }
+      })
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById('suggestions-text').textContent = data.suggestions;
+      })
+      .finally(() => {
+        document.getElementById('spinner').style.display = "none";
+      });
+    }
+
+    const ctx = document.getElementById('resultChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Errors', 'Warnings', 'Conventions'],
+        datasets: [{
+          label: 'Code Quality Breakdown',
+          data: [{{ errors }}, {{ warnings }}, {{ conventions }}],
+          backgroundColor: ['#d63031', '#f1c40f', '#00b894']
+        }]
+      }
+    });
+  </script>
+</body>
+</html>

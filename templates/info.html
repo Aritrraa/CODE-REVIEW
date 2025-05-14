@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Code Quality Analyzer</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    /* Background and General Layout */
+    body {
+      background: linear-gradient(135deg, rgba(30, 33, 36, 0.7), rgba(32, 36, 40, 0.7)), url('https://images.unsplash.com/photo-1531371794817-4f940d27de6e') center center / cover no-repeat;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Segoe UI', sans-serif;
+      color: #f5f5f5;
+      overflow-x: hidden;
+    }
+
+    .container {
+      background: rgba(45, 52, 54, 0.85); /* Semi-transparent dark background */
+      padding: 4rem;
+      border-radius: 1.5rem;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(10px); /* Glass effect */
+      width: 100%;
+      max-width: 1100px;
+    }
+
+    /* Section and Card Styling */
+    section {
+      backdrop-filter: blur(8px); /* Glass effect */
+      padding: 3rem;
+      border-radius: 1.5rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+      margin-bottom: 4rem; /* Increased spacing between sections */
+      transition: box-shadow 0.3s ease;
+    }
+
+    section:hover {
+      box-shadow: 0 6px 25px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Button Styling */
+    .btn-custom {
+      background-color: #27ae60;
+      color: white;
+      font-weight: bold;
+      border-radius: 50px;
+      padding: 1rem 2rem;
+      text-transform: uppercase;
+      transition: background-color 0.3s ease, transform 0.3s ease;
+      letter-spacing: 1.5px;
+    }
+
+    .btn-custom:hover {
+      background-color: #16a085;
+      transform: translateY(-3px);
+    }
+
+    /* Section Titles */
+    .section-title {
+      font-size: 2.2rem;
+      color: #27ae60;
+      margin-bottom: 2rem;
+      text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+      font-weight: 600;
+      letter-spacing: 1.5px;
+    }
+
+    /* Project Title Box */
+    .project-title-box {
+      background: linear-gradient(135deg, #16a085, #27ae60);
+      padding: 4rem;
+      border-radius: 1rem;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+      text-align: center;
+      margin-bottom: 4rem;
+    }
+
+    .project-title-box h1 {
+      font-size: 3.5rem;
+      color: white;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
+    }
+
+    .project-title-box p {
+      font-size: 1.5rem;
+      color: #ecf0f1;
+      margin-top: 1rem;
+    }
+
+    /* Team Member Section */
+    .team-member {
+      background: rgba(52, 152, 219, 0.15);
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      margin-bottom: 2rem;
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .team-member:hover {
+      background: rgba(52, 152, 219, 0.25);
+      box-shadow: 0 6px 25px rgba(0, 0, 0, 0.3);
+    }
+
+    .team-member img {
+      width: 6rem;
+      height: 6rem;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .team-member div {
+      color: #ecf0f1;
+      text-align: center;
+    }
+
+    .team-member div p {
+      margin-top: 0.5rem;
+      font-size: 1.1rem;
+    }
+
+    /* Textarea */
+    textarea {
+      width: 100%;
+      min-height: 280px;
+      padding: 1.5rem;
+      border: 1px solid #636e72;
+      border-radius: 1rem;
+      background: rgba(52, 152, 219, 0.15);
+      color: #ecf0f1;
+      font-family: monospace;
+      resize: vertical;
+      transition: border 0.3s ease;
+      font-size: 1.1rem;
+    }
+
+    textarea:focus {
+      border: 2px solid #27ae60;
+      outline: none;
+    }
+
+    /* List Styles */
+    ul.list-disc {
+      padding-left: 1.5rem;
+      color: #dfe6e9;
+      font-size: 1.1rem;
+    }
+
+    /* About Section */
+    .about-box {
+      background: rgba(52, 152, 219, 0.15);
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      margin-bottom: 2rem;
+    }
+
+    .about-box p {
+      font-size: 1.2rem;
+      line-height: 1.7;
+      color: #dfe6e9;
+    }
+
+    /* How It Works Section */
+    #how-it-works {
+      font-size: 1.2rem; /* Increased font size for text */
+    }
+
+    #how-it-works h2 {
+      font-size: 2.4rem; /* Increased font size for section title */
+    }
+
+    /* Features Section */
+    #features {
+      font-size: 1.2rem; /* Increased font size for text */
+    }
+
+    #features h2 {
+      font-size: 2.4rem; /* Increased font size for section title */
+    }
+
+  </style>
+</head>
+<body>
+    
+
+  <div class="container">
+    <!-- Project Title Box -->
+    <div class="project-title-box">
+      <h1>Code Quality Analyzer</h1>
+      <p>Enhance your Python code quality with advanced analysis and actionable insights</p>
+    </div>
+
+    <!-- <div class="container mx-auto px-4 py-8">
+        <h1 class="text-4xl font-bold text-center mb-8">Code Quality Analyzer</h1>
+     -->
+        <!-- Metrics Section -->
+        <section class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12" >
+          <div class="glass-box text-center">
+            <p class="text-3xl font-bold">1.5+</p>
+            <p class="text-sm">Months of Development</p>
+          </div>
+          <div class="glass-box text-center">
+            <p class="text-3xl font-bold">5</p>
+            <p class="text-sm">Team Members</p>
+          </div>
+          <div class="glass-box text-center">
+            <p class="text-3xl font-bold">99.9%</p>
+            <p class="text-sm">Uptime</p>
+          </div>
+          <div class="glass-box text-center">
+            <p class="text-3xl font-bold">10+</p>
+            <p class="text-sm">Active Users</p>
+          </div>
+        </section>
+    
+    <!-- About Section with Glass Effect -->
+    <section id="about" class="my-8">
+      <div class="about-box">
+        <h2 class="section-title">About</h2>
+        <p>
+          Our code analysis web app uses advanced machine learning models like CodeBERT and Logistic Regression to provide thorough code reviews. With static analysis tools like Pylint, ESLint, and others, it helps developers improve their code quality, catch errors early, and optimize performance.
+          <br><br>
+          The app is designed to be a one-stop solution for identifying code quality issues in Python code, providing detailed error/warning messages, and offering recommendations for improving the overall structure and performance.
+          <br><br> Beyond error detection, the app provides actionable suggestions powered by both static analysis tools and ChatGPT. These suggestions help developers understand the reasoning behind each recommendation and provide insight into how they can improve their code. Additionally, users can export the analysis results as a PDF for easy sharing with teammates or inclusion in documentation.
+          <br><br>Overall, the Code Quality Analyzer offers a comprehensive, intelligent, and user-friendly solution for developers who want to ensure their Python code is high-quality, efficient, and production-ready.
+        </p>
+      </div>
+    </section>
+
+    <!-- How It Works Section with Glass Effect -->
+    <section id="how-it-works" class="my-8">
+      <h2 class="section-title">How It Works</h2>
+      <p>
+        The Code Quality Analyzer operates in a few simple steps:
+      </p>
+      <ol class="list-decimal pl-6 space-y-3">
+        <li><strong>Code Input:</strong> The user pastes their Python code into the provided text box and clicks the "Analyze Code" button.</li>
+        <li><strong>Static Analysis:</strong> The app uses static analysis tools like Pylint to identify common issues, such as syntax errors, unused variables, and potential performance bottlenecks.</li>
+        <li><strong>Machine Learning Review:</strong> CodeBERT, a fine-tuned version of BERT for programming languages, is used to evaluate the overall structure and quality of the code, providing a deeper understanding of its style and correctness.</li>
+        <li><strong>Logistic Regression Classification:</strong> The app uses a Logistic Regression model, trained on various code quality features, to classify the code's quality and predict areas for improvement.</li>
+        <li><strong>Results and Suggestions:</strong> The results are displayed on a clean, user-friendly interface, with errors and warnings highlighted in the code, suggestions from static analysis tools and ChatGPT, and even visual charts for better insight.</li>
+        <li><strong>Download and Export:</strong> Users can download their results or export them as a PDF for further analysis or sharing.</li>
+      </ol>
+    </section>
+
+    <section id="features" class="my-8">
+      <h2 class="section-title">Features</h2>
+      <ul class="list-disc space-y-3">
+        <li><strong>Code Quality Classification:</strong> Classifies the overall quality of the code into categories like "Good," "Needs Improvement," and "Critical."</li>
+        <li><strong>Syntax Highlighting:</strong> The code is displayed with syntax highlighting, making it easier to read and navigate through various elements.</li>
+        <li><strong>Line-Specific Error/Warning Highlighting:</strong> Errors and warnings are highlighted directly in the code, making it easy to locate and address issues quickly.</li>
+        <li><strong>Downloadable Results:</strong> After analysis, users can download the results in various formats, including a detailed text report or a PDF.</li>
+        <li><strong>Suggestions from Static Analysis Tools and ChatGPT:</strong> Suggestions from both static analysis tools (like Pylint) and intelligent recommendations from ChatGPT.</li>
+        <li><strong>Interactive Graphs:</strong> Visualize analysis results with interactive doughnut charts, showing error types or severity levels.</li>
+        <li><strong>PDF Export:</strong> Export the code review results into a professional PDF format.</li>
+      </ul>
+    </section>
+
+    <!-- Team Section with Glass Effect -->
+    <section id="team" class="my-8">
+        <h2 class="section-title" style="margin-bottom: 30px;">Meet the Team</h2>
+      
+       
+          
+        <div class="team-member" style="margin-bottom: 25px;">
+          <img src="/static/upload/adity.jpeg" alt="Adity Mansinka" style="margin-bottom: 15px;">
+          <div>
+            <p class="text-xl font-semibold" style="margin-bottom: 10px;">Adity Mansinka</p>
+            <p class="text-sm" style="line-height: 1.5;">
+              <span style="color: lightgreen;">Machine Learning</span><br>
+              Machine Learning Engineer
+            </p>
+          </div>
+        </div>
+
+        <div class="team-member" style="margin-bottom: 25px;">
+            <img src="/static/upload/ankita.jpeg" alt="Ankita Singh" style="margin-bottom: 15px;">
+            <div>
+              <p class="text-xl font-semibold" style="margin-bottom: 10px;">Ankita Singh</p>
+              <p class="text-sm" style="line-height: 1.5;">
+                <span style="color: lightgreen;">Web Development</span><br>
+                Full Stack Development
+              </p>
+            </div>
+          </div>
+      
+        <div class="team-member" style="margin-bottom: 25px;">
+          <img src="/static/upload/image.png" alt="Aritra Das" style="margin-bottom: 15px;">
+          <div>
+            <p class="text-xl font-semibold" style="margin-bottom: 10px;">Aritra Das</p>
+            <p class="text-sm" style="line-height: 1.5;">
+              <span style="color: lightgreen;">Machine Learning and Backend</span><br>
+              Machine Learning Engineer
+            </p>
+          </div>
+        </div>
+      
+        <div class="team-member" style="margin-bottom: 25px;">
+          <img src="/static/upload/ateeb.jpeg" alt="Syed Ateeb Ul Hasan" style="margin-bottom: 15px;">
+          <div>
+            <p class="text-xl font-semibold" style="margin-bottom: 10px;">Syed Ateeb Ul Hasan</p>
+            <p class="text-sm" style="line-height: 1.5;">
+              <span style="color: lightgreen;">Machine Learning and Backend</span><br>
+              Machine Learning Engineer
+            </p>
+          </div>
+        </div>
+      
+        <div class="team-member" style="margin-bottom: 25px;">
+          <img src="/static/upload/vanshika.jpeg" alt="Vanshika Sinha" style="margin-bottom: 15px;">
+          <div>
+            <p class="text-xl font-semibold" style="margin-bottom: 10px;">Vanshika Sinha</p>
+            <p class="text-sm" style="line-height: 1.5;">
+              <span style="color: lightgreen;">Web Development</span><br>
+              Full Stack Development
+            </p>
+          </div>
+        </div>
+      
+      </section>
+      
+      <section id="start-button" class="my-8 text-center">
+        <!-- <a href="index.html" class="btn-custom">Start Analyzing Your Code</a> -->
+        <form action="/start" method="post">
+          <button type="submit">Start Analyzing Your Code </button>
+      </form>
+      </section>
+  </div>      
+</body>
+</html>

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>How It Works | Code Quality Analyzer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <header>
+        <h1>How It Works</h1>
+        <nav>
+            <a href="/">Home</a> |
+            <a href="/about">About</a>
+        </nav>
+    </header>
+    <main>
+        <section>
+            <h2>Step-by-Step Process</h2>
+            <ol>
+                <li><strong>File Upload:</strong> The user uploads a Python file (.py) for analysis.</li>
+                <li><strong>Static Analysis with Pylint:</strong> The app runs Pylint to count errors (E), warnings (W), and conventions (C).</li>
+                <li><strong>Machine Learning Inference:</strong></li>
+                <ul>
+                    <li><strong>CodeBERT:</strong> The code is tokenized and passed to a fine-tuned CodeBERT model which classifies the code as <em>Good</em> or <em>Needs Improvement</em>.</li>
+                    <li><strong>Logistic Regression:</strong> Based on (E, W, C) counts, the logistic model also predicts the same label independently.</li>
+                </ul>
+                <li><strong>Result Display:</strong> The result page shows both model predictions, a confidence score, and line-specific issues.</li>
+            </ol>
+
+            <h2>Additional Features</h2>
+            <ul>
+                <li>Line-level message highlighting</li>
+                <li>Syntax highlighting for better readability</li>
+                <li>Option to download or view code inline</li>
+            </ul>
+        </section>
+    </main>
+</body>
+</html>

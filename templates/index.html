@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Python Code Analyzer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Fira Code', monospace;
+      background: linear-gradient(135deg, #1f1c2c, #928dab);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #00ffd1; /* neon cyan */
+      overflow: hidden;
+    }
+
+    .container {
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid #00ffd1;
+      box-shadow: 0 0 20px #00ffd199;
+      border-radius: 15px;
+      padding: 50px;
+      width: 90%;
+      max-width: 1000px; /* Increased max-width */
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .project-title-box h1 {
+      color: #00ffd1;
+      text-shadow: 0 0 10px #00ffd1aa;
+      margin-bottom: 40px;
+      font-size: 36px;
+    }
+
+    .section-title {
+      color: #00ffd1;
+      text-shadow: 0 0 5px #00ffd1;
+      margin-bottom: 15px;
+      font-size: 18px;
+    }
+
+    /* File Upload Button (Custom Styled) */
+    input[type="file"] {
+      display: none; /* Hide the default file input */
+    }
+
+    .browse-btn {
+      display: inline-block;
+      padding: 16px 32px;
+      background: linear-gradient(135deg, #00d1b2, #00b89c);
+      color: #fff;
+      font-size: 18px;
+      font-weight: bold;
+      border-radius: 12px;
+      cursor: pointer;
+      text-align: center;
+      box-shadow: 0 0 15px #00ffd1aa;
+      transition: background 0.3s, transform 0.2s;
+      margin-bottom: 25px;
+    }
+
+    .browse-btn:hover {
+      background: linear-gradient(135deg, #00b89c, #009e87);
+      transform: translateY(-3px);
+    }
+
+    .browse-btn:active {
+      transform: translateY(3px);
+    }
+
+    .browse-btn:focus {
+      outline: none;
+    }
+
+    /* Textarea Styles */
+    textarea {
+      width: 100%;
+      height: 250px;
+      background: rgba(0, 0, 0, 0.7);
+      border: 1px solid #00ffd1;
+      border-radius: 12px;
+      padding: 18px;
+      font-size: 16px;
+      color: #fff;
+      font-family: 'Fira Code', monospace;
+      resize: vertical;
+      outline: none;
+      box-shadow: inset 0 0 10px #00ffd155;
+      margin-bottom: 30px;
+    }
+
+    /* Analyze Button */
+    .analyze-btn {
+      width: 100%;
+      padding: 18px;
+      font-size: 18px;
+      font-weight: bold;
+      color: #fff;
+      background: linear-gradient(135deg, #00d1b2, #00b89c);
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 0 15px #00ffd1aa;
+      transition: background 0.3s, transform 0.2s;
+    }
+    .go-back-btn {
+  display: inline-block;
+  margin-top: 20px;
+  font-size: 16px;
+  color: #00ffd1;
+  text-decoration: none;
+  border: 1px solid #00ffd1;
+  padding: 10px 20px;
+  border-radius: 8px;
+  transition: background 0.3s, transform 0.2s;
+}
+
+.go-back-btn:hover {
+  background: rgba(0, 255, 209, 0.1);
+  transform: translateY(-2px);
+}
+
+    .analyze-btn:hover {
+      background: linear-gradient(135deg, #00b89c, #009e87);
+      transform: translateY(-3px);
+    }
+
+    .analyze-btn:active {
+      transform: translateY(3px);
+    }
+
+    .analyze-btn:focus {
+      outline: none;
+    }
+
+    .footer {
+      text-align: center;
+      font-size: 14px;
+      color: #ccc;
+      margin-top: 25px;
+      opacity: 0.8;
+    }
+
+    .file-info {
+      color: #fff;
+      margin-top: 10px;
+      font-size: 16px;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 30px 20px;
+      }
+
+      .project-title-box h1 {
+        font-size: 32px;
+      }
+
+      .section-title {
+        font-size: 16px;
+      }
+
+      textarea {
+        height: 220px;
+        font-size: 15px;
+      }
+
+      .browse-btn {
+        padding: 14px 28px;
+        font-size: 16px;
+      }
+
+      .analyze-btn {
+        padding: 16px;
+        font-size: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="project-title-box">
+      <h1>💻 Python Code Analyzer</h1>
+    </div>
+    
+    <form action="/analyze" method="POST" enctype="multipart/form-data" onsubmit="return validateInput()">
+      <!-- Custom Browse Button -->
+      <label for="file-upload" class="browse-btn">Browse File 📂</label>
+      <input type="file" id="file-upload" name="file" accept=".py" onchange="displayFileName()">
+
+      <!-- Display File Name -->
+      <div id="file-name" class="file-info">No file selected</div>
+
+      <!-- Manual Code Entry -->
+      <div class="section-title">Or paste your Python code here:</div>
+      <textarea name="code" placeholder="Paste your Python code here..."></textarea>
+
+      <!-- Submit -->
+      <button type="submit" class="analyze-btn">Analyze Code 🚀</button>
+        <!-- Go Back Button -->
+<a href="/" class="go-back-btn">← Go Back</a>
+    </form>
+    <div class="footer">Made with 💡 for developers</div>
+  </div>
+
+  <script>
+    function displayFileName() {
+      const fileInput = document.getElementById("file-upload");
+      const fileName = document.getElementById("file-name");
+      if (fileInput.files.length > 0) {
+        fileName.textContent = "Selected file: " + fileInput.files[0].name;
+      } else {
+        fileName.textContent = "No file selected";
+      }
+    }
+
+    function validateInput() {
+      const fileInput = document.getElementById("file-upload").files.length;
+      const codeInput = document.querySelector("textarea[name='code']").value.trim();
+
+      if (fileInput === 0 && codeInput === "") {
+        alert("Please provide either a file or paste your code.");
+        return false; // Prevent form submission
+      }
+      return true; // Allow form submission
+    }
+  </script>
+
+
+
+</body>
+</html>
