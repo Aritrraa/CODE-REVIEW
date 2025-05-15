@@ -95,16 +95,20 @@ Then open [http://localhost:5000](http://localhost:5000) in your browser.
 ## 📸 Screenshots
 
 ### 1. Initial Interface
-![Initial](screenshots/initial.png)
+![Initial](codereview1.png)
 
 ### 2. Browse Page
-![Browse](screenshots/browse.png)
+![Browse](codereview2.png)
 
 ### 3. Uploading Code
-![Uploading](screenshots/uploading.png)
+![Uploading](codereview3.png)
 
-### 4. Output Results
-![Output](screenshots/output.png)
+### 4. Output Results -1
+![Output](codereview4.png)
+
+### 4. Output Results -2
+![Output](codereview5.png)
+
 
 ---
 
